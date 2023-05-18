@@ -26,21 +26,22 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid Credentials");
+          throw new Error("Invalid credentials");
         }
-        const user = await prisma.user.findFirst({
+
+        const user = await prisma.user.findUnique({
           where: {
             email: credentials.email,
           },
         });
 
-        if (!user || !user?.hashedPassowrd) {
+        if (!user || !user?.hashedPassword) {
           throw new Error("Invalid credentials");
         }
 
         const isCorrectPassword = await bcrypt.compare(
           credentials.password,
-          user.hashedPassowrd
+          user.hashedPassword
         );
 
         if (!isCorrectPassword) {
@@ -51,7 +52,6 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
-
   debug: process.env.NODE_ENV === "development",
   session: {
     strategy: "jwt",
@@ -60,4 +60,7 @@ export const authOptions: AuthOptions = {
 };
 
 const handler = NextAuth(authOptions);
+
+// export default handler;
+
 export { handler as GET, handler as POST };
